@@ -12,16 +12,16 @@ const http = require("http").createServer(app);
 const io = require("socket.io")(http);
 
 app.use(cors());
-
+require('dotenv').config({ path: '.env.local'});
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 const jwt = require("jsonwebtoken");
-const User = require("./models/user");
-const Chat = require("./models/message");
+// const User = require("./models/user");
+// const Chat = require("./models/message");
 
 mongoose
-  .connect("mongodb+srv://sujan:sujan@cluster0.ye1ucer.mongodb.net/")
+  .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("Connected to MongoDB");
   })
