@@ -17,8 +17,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 const jwt = require("jsonwebtoken");
-// const User = require("./models/user");
-// const Chat = require("./models/message");
+const User = require("./models/user.model");
+const Chat = require("./models/message.model");
 
 mongoose
   .connect(process.env.MONGO_URI)
