@@ -4,7 +4,7 @@ import Index from './index';
 export default function Layout() {
   return (
     <Stack screenOptions={{ headerShown:false}} >
-      <Stack.Screen component={Index} />
+      <Stack.Screen  name="chat" />
     </Stack>
   );
 }

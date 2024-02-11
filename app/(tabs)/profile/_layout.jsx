@@ -1,10 +1,10 @@
 import { Stack } from 'expo-router';
-import index from './index';
+import Index from './index';
 
 export default function Layout() {
   return (
     <Stack screenOptions={{ headerShown:false}} >
-      <Stack.Screen component={index} />
+      <Stack.Screen name="profile"  />
     </Stack>
   );
 }
