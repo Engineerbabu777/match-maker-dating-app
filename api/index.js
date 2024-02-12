@@ -152,3 +152,117 @@ app.get("/verify/:token", async (req, res) => {
     }
   });
   
+
+  //endpoint to change or select the gender for a particular user profile
+app.put("/users/:userId/gender", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { gender } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { gender: gender },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({ message: "User gender updated Succesfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating user gender", error });
+  }
+});
+
+//endpoint to update the user description
+app.put("/users/:userId/description", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { description } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      {
+        description: description,
+      },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "User description updated succesfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating user description" });
+  }
+});
+
+//fetch users data
+app.get("/users/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(500).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({ user });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching the user details" });
+  }
+});
+
+//end point to add a turnon for a user in the backend
+app.put("/users/:userId/turn-ons/add", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { turnOn } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $addToSet: { turnOns: turnOn } },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Turn on updated succesfully", user });
+  } catch (error) {
+    res.status(500).json({ message: "Error adding the turn on" });
+  }
+});
+
+//endpoint to remove a particular turn on for the user
+app.put("/users/:userId/turn-ons/remove", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const { turnOn } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $pull: { turnOns: turnOn } },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Turn on removed succesfully", user });
+  } catch (error) {
+    return res.status(500).json({ message: "Error removing turn on" });
+  }
+});

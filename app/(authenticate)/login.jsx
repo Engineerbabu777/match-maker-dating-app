@@ -51,6 +51,7 @@ import {
       <SafeAreaView
         style={{ flex: 1, backgroundColor: "white", alignItems: "center" }}
       >
+      
         <View style={{ height: 200, backgroundColor: "pink", width: "100%" }}>
           <View
             style={{
