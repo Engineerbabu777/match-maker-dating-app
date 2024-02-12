@@ -25,7 +25,7 @@ import {
           try{
               const token = await AsyncStorage.getItem("auth");
               if(token){
-                  router.replace("/(tabs)/profile")
+                  // router.replace("/(tabs)/profile")
               }
           } catch(error){
               console.log("Error",error)

@@ -266,3 +266,132 @@ app.put("/users/:userId/turn-ons/remove", async (req, res) => {
     return res.status(500).json({ message: "Error removing turn on" });
   }
 });
+
+
+//end point to add a lookingFor  for a user in the backend
+app.put("/users/:userId/looking-for", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { lookingFor } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      {
+        $addToSet: { lookingFor: lookingFor },
+      },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "No user" });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Looking for updated succesfully".user });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating looking for", error });
+  }
+});
+
+//endpoint to remove looking for in the backend
+app.put("/users/:userId/looking-for/remove", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { lookingFor } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      {
+        $pull: { lookingFor: lookingFor },
+      },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "No user" });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Looking for updated succesfully".user });
+  } catch (error) {
+    res.status(500).json({ message: "Error removing looking for", error });
+  }
+});
+
+app.post("/users/:userId/profile-images", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { imageUrl } = req.body;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.profileImages.push(imageUrl);
+
+    await user.save();
+
+    return res.status(200).json({ message: "Image has been added", user });
+  } catch (error) {
+    res.status(500).json({ message: "Error addding the profile images" });
+  }
+});
+
+//endpoint to fetch all the profiles for a particular user
+app.get("/profiles", async (req, res) => {
+  const { userId, gender, turnOns, lookingFor } = req.query;
+
+  try {
+    let filter = { gender: gender === "male" ? "female" : "male" }; // For gender filtering
+
+    // Add filtering based on turnOns and lookingFor arrays
+    if (turnOns) {
+      filter.turnOns = { $in: turnOns };
+    }
+
+    if (lookingFor) {
+      filter.lookingFor = { $in: lookingFor };
+    }
+
+    const currentUser = await User.findById(userId)
+      .populate("matches", "_id")
+      .populate("crushes", "_id");
+
+    // Extract IDs of friends
+    const friendIds = currentUser.matches.map((friend) => friend._id);
+
+    // Extract IDs of crushes
+    const crushIds = currentUser.crushes.map((crush) => crush._id);
+
+    const profiles = await User.find(filter)
+      .where("_id")
+      .nin([userId, ...friendIds, ...crushIds]);
+
+    return res.status(200).json({ profiles });
+  } catch (error) {
+    return res.status(500).json({ message: "Error fetching profiles", error });
+  }
+});
+
+app.post("/send-like", async (req, res) => {
+  const { currentUserId, selectedUserId } = req.body;
+
+  try {
+    //update the recepient's friendRequestsArray!
+    await User.findByIdAndUpdate(selectedUserId, {
+      $push: { recievedLikes: currentUserId },
+    });
+    //update the sender's sentFriendRequests array
+    await User.findByIdAndUpdate(currentUserId, {
+      $push: { crushes: selectedUserId },
+    });
+
+    res.sendStatus(200);
+  } catch (error) {
+    res.sendStatus(500);
+  }
+});
